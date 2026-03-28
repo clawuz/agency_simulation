@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAllowedDomain() {
+      return request.auth.token.email.matches('.*@tribalistanbul\\.com$')
+          || request.auth.token.email.matches('.*@twist\\.ddb\\.com$');
+    }
+
+    function hasRole(role) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isBudgetRole() {
+      let role = get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      return role == 'super_admin' || role == 'finance' || role == 'admin';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && isAllowedDomain() && (request.auth.uid == userId || hasRole('admin') || hasRole('super_admin'));
+      allow write: if isAuthenticated() && isAllowedDomain() && (request.auth.uid == userId || hasRole('admin') || hasRole('super_admin'));
+    }
+
+    // Agency state — budget field restricted
+    match /agency/{docId} {
+      allow read: if isAuthenticated() && isAllowedDomain();
+      allow write: if isAuthenticated() && isAllowedDomain() && isBudgetRole();
+    }
+
+    // Education — read by all Tribal/Twist users, write by admin only
+    match /education/{docId} {
+      allow read: if isAuthenticated() && isAllowedDomain();
+      allow write: if isAuthenticated() && isAllowedDomain() && (hasRole('admin') || hasRole('super_admin'));
+    }
+  }
+}

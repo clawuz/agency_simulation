@@ -37,5 +37,11 @@ service cloud.firestore {
       allow read: if isAuthenticated() && isAllowedDomain();
       allow write: if isAuthenticated() && isAllowedDomain() && (hasRole('admin') || hasRole('super_admin'));
     }
+
+    // Awards archive — read by all Tribal/Twist users, write by admin only
+    match /awards/{docId} {
+      allow read: if isAuthenticated() && isAllowedDomain();
+      allow write: if isAuthenticated() && isAllowedDomain() && (hasRole('admin') || hasRole('super_admin'));
+    }
   }
 }

@@ -1,0 +1,16 @@
+export const CLIENTS = [
+  'Turkish Airlines',
+  'Algida',
+  'Dove',
+  'Audi',
+  'ING',
+  'Şok Marketler',
+  'IKSV',
+  'Findeks',
+  'Netflix',
+  'İş Bankası',
+  'Fiba Banka',
+  'AJET',
+  'Miles & Smiles',
+  'Turkish Cargo',
+]
